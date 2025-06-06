@@ -2,10 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { knex } from "../database";
 
-export async function getUserIdAndId(
-  request: FastifyRequest,
-  response: FastifyReply
-) {
+export async function getUserIdAndId(request: FastifyRequest) {
   const { sessionId } = request.cookies;
 
   const user = await knex("users").where("session_id", sessionId).first();

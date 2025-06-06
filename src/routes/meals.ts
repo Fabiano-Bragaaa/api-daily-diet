@@ -4,6 +4,7 @@ import { knex } from "../database";
 import { date, string, z } from "zod";
 import { randomUUID } from "node:crypto";
 import { getUserIdAndId } from "../utils/getUserIdAndId";
+import { getUserId } from "../utils/getUserId";
 
 export async function mealsRoutes(app: FastifyInstance) {
   app.get(
@@ -11,8 +12,8 @@ export async function mealsRoutes(app: FastifyInstance) {
     {
       preHandler: [checkSessionIdExist],
     },
-    async (request, response) => {
-      const { user_id } = await getUserIdAndId(request, response);
+    async (request) => {
+      const { user_id } = await getUserId(request);
 
       const list = await knex("meals").where({ user_id }).select("*");
 
@@ -25,7 +26,7 @@ export async function mealsRoutes(app: FastifyInstance) {
       preHandler: [checkSessionIdExist],
     },
     async (request, response) => {
-      const { user_id } = await getUserIdAndId(request, response);
+      const { user_id } = await getUserId(request);
 
       const createMeal = z.object({
         name: z.string(),
@@ -50,7 +51,7 @@ export async function mealsRoutes(app: FastifyInstance) {
     "/:id",
     { preHandler: [checkSessionIdExist] },
     async (request, response) => {
-      const { id, user_id } = await getUserIdAndId(request, response);
+      const { id, user_id } = await getUserIdAndId(request);
 
       const meal = await knex("meals")
         .where({
@@ -70,7 +71,7 @@ export async function mealsRoutes(app: FastifyInstance) {
     "/:id",
     { preHandler: [checkSessionIdExist] },
     async (request, response) => {
-      const { id, user_id } = await getUserIdAndId(request, response);
+      const { id, user_id } = await getUserIdAndId(request);
 
       const updateMealSchema = z.object({
         name: z.string().optional(),
@@ -103,7 +104,7 @@ export async function mealsRoutes(app: FastifyInstance) {
     "/:id",
     { preHandler: [checkSessionIdExist] },
     async (request, response) => {
-      const { id, user_id } = await getUserIdAndId(request, response);
+      const { id, user_id } = await getUserIdAndId(request);
 
       const deleteMeal = await knex("meals").where({ id, user_id }).del();
 
