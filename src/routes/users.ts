@@ -3,11 +3,14 @@ import { knex } from "../database";
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
 import bcrypt from "bcrypt";
+import { checkSessionIdExist } from "../middlewares/check-session-id-exist";
 
 const SALT_ROUNDS_NUMBER = 10;
 
 export async function usersRoutes(app: FastifyInstance) {
-  app.get("/", async () => {
+  app.get("/", {
+    preHandler: [checkSessionIdExist]
+  } , async () => {
     const users = await knex("users").select("*");
 
     return users;
