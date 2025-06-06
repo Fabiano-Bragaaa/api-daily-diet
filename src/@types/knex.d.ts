@@ -12,10 +12,10 @@ declare module "knex/types/tables" {
     meals: {
       id: string;
       user_id: string;
-      name: string;
-      description: string;
-      created_at: string;
-      in_diet: boolean;
+      name?: string;
+      description?: string;
+      created_at?: Date;
+      in_diet?: boolean;
     };
   }
 }

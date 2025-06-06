@@ -93,7 +93,7 @@ export async function usersRoutes(app: FastifyInstance) {
         });
       }
 
-      await knex("users").update({
+      await knex("users").where({ id: user.id }).update({
         session_id: sessionId,
       });
 
