@@ -1,16 +1,12 @@
 import fastify from "fastify";
 import { knex } from "./database";
 import { randomUUID } from "node:crypto";
+import { usersRoutes } from "./routes/users";
 
 const app = fastify();
 
-app.get("/hello", async () => {
-  const createUser = await knex("users")
-    .select("*")
-    .where("password", "123")
-    .select("*");
-
-  return createUser;
+app.register(usersRoutes, {
+  prefix: "users",
 });
 
 app
