@@ -3,6 +3,7 @@ import { checkSessionIdExist } from "../middlewares/check-session-id-exist";
 import { knex } from "../database";
 import { date, string, z } from "zod";
 import { randomUUID } from "node:crypto";
+import { getUserIdAndId } from "../utils/getUserIdAndId";
 
 export async function mealsRoutes(app: FastifyInstance) {
   app.get(
@@ -10,12 +11,10 @@ export async function mealsRoutes(app: FastifyInstance) {
     {
       preHandler: [checkSessionIdExist],
     },
-    async (request) => {
-      const { sessionId } = request.cookies;
+    async (request, response) => {
+      const { user_id } = await getUserIdAndId(request, response);
 
-      const user = await knex("users").where("session_id", sessionId).first();
-
-      const list = await knex("meals").where("user_id", user?.id).select("*");
+      const list = await knex("meals").where({ user_id }).select("*");
 
       return { list };
     }
@@ -26,9 +25,7 @@ export async function mealsRoutes(app: FastifyInstance) {
       preHandler: [checkSessionIdExist],
     },
     async (request, response) => {
-      const { sessionId } = request.cookies;
-
-      const user = await knex("users").where("session_id", sessionId).first();
+      const { user_id } = await getUserIdAndId(request, response);
 
       const createMeal = z.object({
         name: z.string(),
@@ -43,7 +40,7 @@ export async function mealsRoutes(app: FastifyInstance) {
         name,
         description,
         in_diet,
-        user_id: user?.id,
+        user_id,
       });
 
       response.status(201).send();
@@ -53,20 +50,12 @@ export async function mealsRoutes(app: FastifyInstance) {
     "/:id",
     { preHandler: [checkSessionIdExist] },
     async (request, response) => {
-      const { sessionId } = request.cookies;
-
-      const user = await knex("users").where("session_id", sessionId).first();
-
-      const getMealSchema = z.object({
-        id: z.string().uuid(),
-      });
-
-      const { id } = getMealSchema.parse(request.params);
+      const { id, user_id } = await getUserIdAndId(request, response);
 
       const meal = await knex("meals")
         .where({
           id,
-          user_id: user?.id,
+          user_id,
         })
         .first();
 
@@ -81,15 +70,7 @@ export async function mealsRoutes(app: FastifyInstance) {
     "/:id",
     { preHandler: [checkSessionIdExist] },
     async (request, response) => {
-      const { sessionId } = request.cookies;
-
-      const user = await knex("users").where("session_id", sessionId).first();
-
-      const getMealSchema = z.object({
-        id: z.string().uuid(),
-      });
-
-      const { id } = getMealSchema.parse(request.params);
+      const { id, user_id } = await getUserIdAndId(request, response);
 
       const updateMealSchema = z.object({
         name: z.string().optional(),
@@ -100,17 +81,15 @@ export async function mealsRoutes(app: FastifyInstance) {
 
       const updates = updateMealSchema.parse(request.body);
 
-      const meal = await knex("meals").where({ id, user_id: user?.id }).first();
+      const meal = await knex("meals").where({ id, user_id }).first();
 
       if (!meal) {
         return response.status(404).send({ error: "Refeição não encontrada" });
       }
 
-      await knex("meals").where({ id, user_id: user?.id }).update(updates);
+      await knex("meals").where({ id, user_id }).update(updates);
 
-      const updatedMeal = await knex("meals")
-        .where({ id, user_id: user?.id })
-        .first();
+      const updatedMeal = await knex("meals").where({ id, user_id }).first();
 
       const formattedMeal = {
         ...updatedMeal,
@@ -124,19 +103,9 @@ export async function mealsRoutes(app: FastifyInstance) {
     "/:id",
     { preHandler: [checkSessionIdExist] },
     async (request, response) => {
-      const { sessionId } = request.cookies;
+      const { id, user_id } = await getUserIdAndId(request, response);
 
-      const user = await knex("users").where("session_id", sessionId).first();
-
-      const getMealSchema = z.object({
-        id: z.string().uuid(),
-      });
-
-      const { id } = getMealSchema.parse(request.params);
-
-      const deleteMeal = await knex("meals")
-        .where({ id, user_id: user?.id })
-        .del();
+      const deleteMeal = await knex("meals").where({ id, user_id }).del();
 
       if (deleteMeal === 0) {
         return response.status(404).send({ error: "Refeição não encontrada" });
