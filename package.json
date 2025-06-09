@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "npx tsx watch src/server.ts",
-    "knex": "node --import tsx ./node_modules/knex/bin/cli.js --knexfile ./knexFile.ts"
+    "knex": "node --import tsx ./node_modules/knex/bin/cli.js --knexfile ./knexFile.ts",
+    "test": "vitest"
   },
   "keywords": [],
   "author": "",
@@ -13,8 +14,11 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/node": "^22.15.30",
+    "@types/supertest": "^6.0.3",
+    "supertest": "^7.1.1",
     "tsx": "^4.19.4",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.2"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",

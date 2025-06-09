@@ -92,12 +92,7 @@ export async function mealsRoutes(app: FastifyInstance) {
 
       const updatedMeal = await knex("meals").where({ id, user_id }).first();
 
-      const formattedMeal = {
-        ...updatedMeal,
-        in_diet: Boolean(updatedMeal?.in_diet),
-      };
-
-      return { formattedMeal };
+      return { updatedMeal };
     }
   );
   app.delete(
